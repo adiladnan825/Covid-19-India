@@ -1,1 +1,1 @@
-# Covid-19-India
+# Covid-19 India
