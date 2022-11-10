@@ -1,0 +1,68 @@
+----> create database named Covid 19 and use that
+create database Covid19;
+use covid19;
+
+
+----> Fetching all the tables.
+select * from dbo.district ;
+select * from dbo.time_series;
+select * from dbo.delta;
+select * from delta7;
+select * from dbo.population;
+select * from delta21_14;
+select * from dbo.total;
+select * from state_wise_pop;
+select *from day_wise;
+
+
+----> Analysisng data.
+select * from dbo.total where state_code = 'AN';
+select Date from dbo.time_series where check_Case ='confirmed' and type='delta';
+select * from dbo.district where state_code = 'MH'and type = 'delta';
+select sum(Ap) from time_series where type='delta' and check_case ='confirmed';
+
+select dbo.delta.confirmed,dbo.total.tested from dbo.delta
+full join dbo.total 
+on dbo.delta.state_code=dbo.total.state_code;
+
+select a.confirmed,b.tested from dbo.delta as a
+full join dbo.total as b
+on a.state_code=b.state_code;
+
+select * from dbo.delta
+full join dbo.total 
+on dbo.delta.state_code=dbo.total.state_code;
+
+
+---->Testing ratio(TR)
+select a.*,cast(a.tested/(b.population*1.0) as decimal(20,1)) as TR from total 
+as a left join population as b on a.state_code = b.state_code;
+
+
+----> Categorising district based on TR values(given in problem statement)
+select *,
+case
+when TR <0.05 then 'A'
+when TR >= 0.05 and TR <= 0.1 then 'B'
+when TR > 0.1 and TR <= 0.3 then 'C'
+when TR > 0.3 and TR <=0.5 then 'D'
+when TR > 0.5 and TR <= 0.75 then 'E'
+when TR > 0.75 and TR <= 1 then 'F'
+end as Category
+from dbo.state_wise_pop;
+
+
+---->Weekly/monthly analysis of covid cases
+--> 2020
+select DATEPART(month,Date) as months,sum(total_cases) as total_tested from day_wise 
+where Cases ='tested' and datepart(year,Date) = 2020  group by datepart(month,Date)
+order by DATEPART(month,Date);
+
+--> 2021
+select DATEPART(month,Date) as months,sum(total_cases) as total_confirmed from day_wise 
+where Cases ='confirmed' and datepart(year,Date) = 2021  group by datepart(month,Date)
+order by DATEPART(month,Date);
+
+
+
+
